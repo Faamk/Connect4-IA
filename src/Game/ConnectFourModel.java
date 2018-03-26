@@ -123,6 +123,20 @@ public class ConnectFourModel {
         this.mousePoint = new Point(0, 0);
     }
 
+    public ConnectFourModel(int[][] board) {
+        this.gameBoard =board;
+        this.connectFour = new Point[4];
+        for (int i = 0; i < 4; i++) {
+            this.connectFour[i] = new Point(0, 0);
+        }
+
+        this.droppingDisc = new Disc(0, 0, 0, Y_DISC_VELOCITY);
+        this.winSequence = false;
+        this.timer = new Timer(0, null);
+        this.clickPoint = new Point(0, 0);
+        this.mousePoint = new Point(0, 0);
+    }
+
     public int getRows() {
         return this.ROWS;
     }
@@ -203,6 +217,16 @@ public class ConnectFourModel {
         playerTurn = !playerTurn;
     }
 
+    public ArrayList<Integer> getColunasJogaveis(int[][] newBoard) {
+        ArrayList<Integer> colunasLivres = new ArrayList<>();
+        for (int i = 0; i < gameBoard[0].length; i++) {
+            if (newBoard[0][i] == 0) {
+                colunasLivres.add(i);
+            }
+        }
+        return colunasLivres;
+    }
+
     public ArrayList<Integer> getColunasJogaveis() {
         ArrayList<Integer> colunasLivres = new ArrayList<>();
         for (int i = 0; i < gameBoard[0].length; i++) {
@@ -213,21 +237,6 @@ public class ConnectFourModel {
         return colunasLivres;
     }
 
-    public int[][] simulaJogada(Integer coluna,Integer numPlayer) {
-        int[][] newGameBoard = new int[ROWS][COLS];
-        for (int i = 0; i < getGameBoard().length; i++) {
-            for (int j = 0; j < getGameBoard()[i].length; j++) {
-                newGameBoard[i][j] = getGameBoard()[i][j];
-            }
-        }
-        for (int i = getRows() - 1; i >= 0; i--) {
-            if (newGameBoard[i][coluna] == EMPTY) {
-                newGameBoard[i][coluna] = numPlayer;
-                break;
-            }
-        }
-        return newGameBoard;
-    }
 
     public boolean tabuleiroCheio() {
         for (int i = 0; i < getGameBoard().length; i++) {
@@ -240,27 +249,86 @@ public class ConnectFourModel {
         return true;
     }
 
-    public int checkHorizontalPieces(int playerNumber,int[][] newTabuleiro) {
+    public int[][] repeteTabuleiro(){
+        int[][] newGameBoard = new int[ROWS][COLS];
+        for (int i = 0; i < getGameBoard().length; i++) {
+            for (int j = 0; j < getGameBoard()[i].length; j++) {
+                newGameBoard[i][j] = getGameBoard()[i][j];
+            }
+        }
+        return newGameBoard;
+    }
+
+    public ConnectFourModel simulaJogada(Integer coluna, Integer numPlayer) {
+        int[][] newGameBoard = new int[ROWS][COLS];
+        for (int i = 0; i < getGameBoard().length; i++) {
+            for (int j = 0; j < getGameBoard()[i].length; j++) {
+                newGameBoard[i][j] = getGameBoard()[i][j];
+            }
+        }
+        for (int i = getRows() - 1; i >= 0; i--) {
+            if (newGameBoard[i][coluna] == EMPTY) {
+                newGameBoard[i][coluna] = numPlayer;
+                break;
+            }
+        }
+        return new ConnectFourModel(newGameBoard);
+    }
+
+
+    public ConnectFourModel simulaJogada(int[][] tabuleiro, Integer coluna, Integer numPlayer) {
+        int[][] newGameBoard = new int[ROWS][COLS];
+        for (int i = 0; i < getGameBoard().length; i++) {
+            for (int j = 0; j < getGameBoard()[i].length; j++) {
+                newGameBoard[i][j] = tabuleiro[i][j];
+            }
+        }
+        for (int i = getRows() - 1; i >= 0; i--) {
+            if (newGameBoard[i][coluna] == EMPTY) {
+                newGameBoard[i][coluna] = numPlayer;
+                break;
+            }
+        }
+        return new ConnectFourModel(newGameBoard);
+    }
+
+    public int checkHorizontalPieces(int playerNumber, int[][] newTabuleiro) {
         int max = 0;
-        //Check horizontal win
         for (int row = getRows() - 1; row >= 0; row--) {
             for (int col = 0; col < getCols() - 3; col++) {
                 int tempMax = 0;
-                if ( newTabuleiro[row][col] == playerNumber) {
-                    int startPoint =  newTabuleiro[row][col];
-                    for (int i = col+1; i < col+4; i++) {
-                        if (startPoint ==  newTabuleiro[row][i]) {
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = col + 1; i < col + 3; i++) {
+                        if (startPoint == newTabuleiro[row][i]) {
                             tempMax++;
-                        }
-                        else if( newTabuleiro[row][i]!=0){
-                            tempMax=-1;
+                        } else if (newTabuleiro[row][i] != 0) {
+                            tempMax = -1;
                         }
                     }
 
                     if (max < tempMax) {
                         max = tempMax;
                     }
-                    tempMax=0;
+                }
+            }
+            for (int col = getCols() - 1; col >= 3; col--) {
+                int tempMax = 0;
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = col - 1; i > col - 3; i--) {
+                        if (startPoint == newTabuleiro[row][i]) {
+                            tempMax++;
+                        } else if (newTabuleiro[row][i] != 0) {
+                            tempMax = -1;
+                        }
+                    }
+
+                    if (max < tempMax) {
+                        max = tempMax;
+                    }
                 }
             }
         }
@@ -270,25 +338,42 @@ public class ConnectFourModel {
 
     public int checkVerticalPieces(int playerNumber, int[][] newTabuleiro) {
         int max = 0;
-        for (int row = getRows() - 1; row >= 3; row--) {
-            for (int col = 0; col < getCols(); col++) {
+        for (int col = getCols() - 1; col >= 0; col--) {
+            for (int row = 0; row < getRows() - 3; row++) {
                 int tempMax = 0;
-                if ( newTabuleiro[row][col] == playerNumber) {
-                    int startPoint =  newTabuleiro[row][col];
-                    for (int i = row-1; i > row-4; i--) {
-                        if (startPoint ==  newTabuleiro[i][col]) {
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = row + 1; i < row + 3; i++) {
+                        if (startPoint == newTabuleiro[i][col]) {
                             tempMax++;
-                        }
-                        else if( newTabuleiro[i][col]!=0){
-                            tempMax=-1;
+                        } else if (newTabuleiro[i][col] != 0) {
+                            tempMax = -1;
                         }
                     }
                     if (max < tempMax) {
                         max = tempMax;
                     }
-                    tempMax=0;
                 }
             }
+            for (int row = getRows(); row < 3; row--) {
+                int tempMax = 0;
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = row - 1; i > row - 3; i--) {
+                        if (startPoint == newTabuleiro[i][col]) {
+                            tempMax++;
+                        } else if (newTabuleiro[i][col] != 0) {
+                            tempMax = -1;
+                        }
+                    }
+                    if (max < tempMax) {
+                        max = tempMax;
+                    }
+                }
+            }
+
         }
         return max;
     }
@@ -299,50 +384,159 @@ public class ConnectFourModel {
         for (int row = getRows() - 1; row >= 3; row--) {
             for (int col = 0; col < getCols() - 3; col++) {
                 int tempMax = 0;
-                if ( newTabuleiro[row][col] == playerNumber) {
-                    int startPoint =  newTabuleiro[row][col];
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
                     for (int i = 1; i < 4; i++) {
-                        if (startPoint ==  newTabuleiro[row-i][col+i]) {
+                        if (startPoint == newTabuleiro[row - i][col + i]) {
                             tempMax++;
-                        }
-                        else if( newTabuleiro[row-i][col+i]!=0){
-                            tempMax=-1;
+                        } else if (newTabuleiro[row - i][col + i] != 0) {
+                            tempMax = -1;
                         }
                     }
                     if (max < tempMax) {
                         max = tempMax;
                     }
-                    tempMax=0;
+                }
+            }
+        }
+        for (int row = 0; row > getRows()-3; row++) {
+            for (int col = getCols()-1; col > getCols() - 5; col--) {
+                int tempMax = 0;
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = 1; i < 4; i++) {
+                        if (startPoint == newTabuleiro[row + i][col - i]) {
+                            tempMax++;
+                        } else if (newTabuleiro[row + i][col - i] != 0) {
+                            tempMax = -1;
+                        }
+                    }
+                    if (max < tempMax) {
+                        max = tempMax;
+                    }
+                }
+            }
+        }
+
+        return max;
+    }
+
+    public int checkDiagonalBRTLPieces(int playerNumber, int[][] newTabuleiro) {
+        //Check diagonal win from bottom left to top right
+        int max = 0;
+        for (int row = getRows() - 1; row >= 3; row--) {
+            for (int col = 3; col < getCols(); col++) {
+                int tempMax = 0;
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = 1; i < 4; i++) {
+                        if (startPoint == newTabuleiro[row - i][col - i]) {
+                            tempMax++;
+                        } else if (newTabuleiro[row - i][col - i] != 0) {
+                            tempMax = -1;
+                        }
+                    }
+                    if (max < tempMax) {
+                        max = tempMax;
+                    }
+                }
+            }
+        }
+        for (int row = 0; row < getRows()-3; row++) {
+            for (int col = 0; col < getCols()-3; col++) {
+                int tempMax = 0;
+                if (newTabuleiro[row][col] == playerNumber) {
+                    tempMax++;
+                    int startPoint = newTabuleiro[row][col];
+                    for (int i = 1; i < 4; i++) {
+                        if (startPoint == newTabuleiro[row + i][col + i]) {
+                            tempMax++;
+                        } else if (newTabuleiro[row + i][col + i] != 0) {
+                            tempMax = -1;
+                        }
+                    }
+                    if (max < tempMax) {
+                        max = tempMax;
+                    }
                 }
             }
         }
         return max;
     }
 
-    public int checkDiagonalBRTLPieces(int playerNumber,int[][] newTabuleiro) {
-        //Check diagonal win from bottom left to top right
-        int max = 0;
-        for (int row = getRows() - 1; row >= 3; row--) {
-            for (int col = 3; col < getCols(); col++) {
-                int tempMax = 0;
-                if ( newTabuleiro[row][col] == playerNumber) {
-                    int startPoint =  newTabuleiro[row][col];
-                    for (int i = 1; i < 4; i++) {
-                        if (startPoint ==  newTabuleiro[row-i][col-i]) {
-                            tempMax++;
-                        }
-                        else if( newTabuleiro[row-i][col-i]!=0){
-                            tempMax=-1;
-                        }
+    public int checkWin() {
+        int start = 0;
+        //Check horizontal win
+        for (int row = getRows() - 1; row >= 0; row--) {
+            for (int col = 0; col < getCols() - 3; col++) {
+                start = getGameBoard()[row][col];
+                if (start != EMPTY
+                        && start == getGameBoard()[row][col + 1]
+                        && start == getGameBoard()[row][col + 2]
+                        && start == getGameBoard()[row][col + 3]) {
+                    for (int i = 0; i < 4; i++) {
+                        getConnectFour()[i] = new Point(row, col + i);
                     }
-                    if (max < tempMax) {
-                        max = tempMax;
-                    }
-                    tempMax=0;
+                    return start;
                 }
             }
         }
-        return max;
+
+        //Check vertical win
+        for (int row = getRows() - 1; row >= 3; row--) {
+            for (int col = 0; col < getCols(); col++) {
+                start = getGameBoard()[row][col];
+                if (start != EMPTY
+                        && start == getGameBoard()[row - 1][col]
+                        && start == getGameBoard()[row - 2][col]
+                        && start == getGameBoard()[row - 3][col]) {
+                    for (int i = 0; i < 4; i++) {
+                        getConnectFour()[i] = new Point(row - i, col);
+                    }
+                    return start;
+                }
+            }
+        }
+
+        //Check diagonal win from bottom left to top right
+        for (int row = getRows() - 1; row >= 3; row--) {
+            for (int col = 0; col < getCols() - 3; col++) {
+                start = getGameBoard()[row][col];
+                if (start != EMPTY
+                        && start == getGameBoard()[row - 1][col + 1]
+                        && start == getGameBoard()[row - 2][col + 2]
+                        && start == getGameBoard()[row - 3][col + 3]) {
+                    for (int i = 0; i < 4; i++) {
+                        getConnectFour()[i] = new Point(row - i, col + i);
+                    }
+                    return start;
+                }
+            }
+        }
+
+        //Check diagonal win from bottom right to top left
+        for (int row = getRows() - 1; row >= 3; row--) {
+            for (int col = getCols() - 1; col >= 3; col--) {
+                start = getGameBoard()[row][col];
+                if (start != EMPTY
+                        && start == getGameBoard()[row-1][col-1]
+                        && start == getGameBoard()[row-2][col-2]
+                        && start == getGameBoard()[row-3][col-3]) {
+                    for (int i = 0; i < 4; i++) {
+                        getConnectFour()[i] = new Point(row - i, col - i);
+                    }
+                    return start;
+                }
+            }
+        }
+
+        if(tabuleiroCheio()){
+            return -1;
+        }
+        return 0;
     }
 
 }
