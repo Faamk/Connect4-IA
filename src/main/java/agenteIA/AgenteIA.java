@@ -8,19 +8,27 @@ import java.util.*;
 public class AgenteIA {
     private ConnectFourModel modelo;
 
-    private int PLAYER_AI = 2;
-    private int PLAYER_HUMAN = 1;
+    private int PLAYER_AI;
+    private int PLAYER_HUMAN;
 
     Map<Integer, Integer> colunasEResultados = new HashMap<>();
 
     public AgenteIA(ConnectFourModel modelo) {
+        if(modelo.isPlayerTurn()) {
+            PLAYER_AI = 1;
+            PLAYER_HUMAN = 2;
+        }else{
+            PLAYER_AI = 2;
+            PLAYER_HUMAN = 1;
+        }
         this.modelo = modelo;
     }
 
     public int fazerJogada() {
-        minMax(modelo, 4, PLAYER_AI);
+        minMax(modelo, 5, PLAYER_AI);
         int resu = Collections.max(colunasEResultados.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         colunasEResultados = new HashMap<>();
+        modelo.addLastJogada(resu);
         return resu;
 
     }
@@ -47,10 +55,10 @@ public class AgenteIA {
 
         if (jogador == PLAYER_AI) {
             for (Integer i : colunasPossiveis) {
-                ConnectFourModel modeloJogada = modeloRecebido.simulaJogada(i, 2);
+                ConnectFourModel modeloJogada = modeloRecebido.simulaJogada(i, PLAYER_AI);
                 currentScore = minMax(modeloJogada, depth - 1, PLAYER_HUMAN);
                 max = Math.max(currentScore, max);
-                if (depth == 4) {
+                if (depth == 5) {
                     System.out.println("Score da coluna" + i + " = " + currentScore);
                     colunasEResultados.put(i, currentScore);
                 }
@@ -59,10 +67,10 @@ public class AgenteIA {
             return max;
         } else {
             for (Integer i : colunasPossiveis) {
-                ConnectFourModel modeloJogada = modeloRecebido.simulaJogada(i, 1);
+                ConnectFourModel modeloJogada = modeloRecebido.simulaJogada(i, PLAYER_HUMAN);
                 currentScore = minMax(modeloJogada, depth - 1, PLAYER_AI);
                 min = Math.min(currentScore, min);
-                if (depth == 4) {
+                if (depth == 5) {
                     System.out.println("Score da coluna" + i + " = " + currentScore);
                     colunasEResultados.put(i, currentScore);
                 }
@@ -73,15 +81,15 @@ public class AgenteIA {
     }
 
     private int rateBoard(int[][] novoTabuleiro) {
-        int myHor = modelo.checkHorizontalPieces(2, novoTabuleiro);
-        int myVer = modelo.checkVerticalPieces(2, novoTabuleiro);
-        int myBLTR = modelo.checkDiagonalBLTRPieces(2, novoTabuleiro);
-        int myBRTL = modelo.checkDiagonalBRTLPieces(2, novoTabuleiro);
+        int myHor = modelo.checkHorizontalPieces(PLAYER_AI, novoTabuleiro);
+        int myVer = modelo.checkVerticalPieces(PLAYER_AI, novoTabuleiro);
+        int myBLTR = modelo.checkDiagonalBLTRPieces(PLAYER_AI, novoTabuleiro);
+        int myBRTL = modelo.checkDiagonalBRTLPieces(PLAYER_AI, novoTabuleiro);
         int value = (100 * (myHor + myVer + myBLTR + myBRTL)) / 16;
-        int eneHor = modelo.checkHorizontalPieces(1, novoTabuleiro);
-        int eneVer = modelo.checkVerticalPieces(1, novoTabuleiro);
-        int eneBLTR = modelo.checkDiagonalBLTRPieces(1, novoTabuleiro);
-        int eneBRTL = modelo.checkDiagonalBRTLPieces(1, novoTabuleiro);
+        int eneHor = modelo.checkHorizontalPieces(PLAYER_HUMAN, novoTabuleiro);
+        int eneVer = modelo.checkVerticalPieces(PLAYER_HUMAN, novoTabuleiro);
+        int eneBLTR = modelo.checkDiagonalBLTRPieces(PLAYER_HUMAN, novoTabuleiro);
+        int eneBRTL = modelo.checkDiagonalBRTLPieces(PLAYER_HUMAN, novoTabuleiro);
         int valueEnemy = (100 * (eneHor + eneVer + eneBLTR + eneBRTL)) / 16;
         int utility = value - valueEnemy;
         return utility;

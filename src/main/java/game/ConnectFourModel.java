@@ -100,6 +100,8 @@ public class ConnectFourModel {
      */
     private int currentColor = RED;
 
+    private int[] lastPlays = {0,0};
+
     /**
      * Initializes a new instance of game.ConnectFourModel with default values.
      */
@@ -264,23 +266,6 @@ public class ConnectFourModel {
         for (int i = 0; i < getGameBoard().length; i++) {
             for (int j = 0; j < getGameBoard()[i].length; j++) {
                 newGameBoard[i][j] = getGameBoard()[i][j];
-            }
-        }
-        for (int i = getRows() - 1; i >= 0; i--) {
-            if (newGameBoard[i][coluna] == EMPTY) {
-                newGameBoard[i][coluna] = numPlayer;
-                break;
-            }
-        }
-        return new ConnectFourModel(newGameBoard);
-    }
-
-
-    public ConnectFourModel simulaJogada(int[][] tabuleiro, Integer coluna, Integer numPlayer) {
-        int[][] newGameBoard = new int[ROWS][COLS];
-        for (int i = 0; i < getGameBoard().length; i++) {
-            for (int j = 0; j < getGameBoard()[i].length; j++) {
-                newGameBoard[i][j] = tabuleiro[i][j];
             }
         }
         for (int i = getRows() - 1; i >= 0; i--) {
@@ -539,4 +524,29 @@ public class ConnectFourModel {
         return 0;
     }
 
+    public void removeLastJogadas(){
+        int i = 0;
+        int col = lastPlays[1];
+        while(i<ROWS){
+            if(gameBoard[i][col]!=0){
+                gameBoard[i][col]=0;
+                break;
+            }
+            i++;
+        }
+        i=0;
+        col = lastPlays[0];
+        while(i<ROWS){
+            if(gameBoard[i][col]!=0){
+                gameBoard[i][col]=0;
+                break;
+            }
+            i++;
+        }
+    }
+
+    public void addLastJogada(int x) {
+        lastPlays[0]=lastPlays[1];
+        lastPlays[1]=x;
+    }
 }

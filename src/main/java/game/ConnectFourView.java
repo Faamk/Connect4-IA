@@ -10,58 +10,27 @@ import java.io.IOException;
 
 public class ConnectFourView extends JFrame{
 	
-	/**
-	 * Represents the Red game.Disc.
-	 */
 	private ImageIcon redDiscIcon;
-	
-	/**
-	 * Represents the Black game.Disc.
-	 */
 	private ImageIcon blackDiscIcon;
-	
-	/**
-	 * Represents a tile of the game board. This is always drawn whether there
-	 * is a disc inside or not.
-	 */
 	private ImageIcon defaultIcon;
-	
-	/**
-	 * Represents the current disc which can be red or black. 
-	 */
 	private ImageIcon currIcon;
-	
-	/**
-	 * Represents the image drawn over the winning Connect-Four
-	 */
 	private ImageIcon winFlashTileIcon;
-	
-	/**
-	 * Represents image of the restart button.
-	 */
 	private ImageIcon restartIcon;
-	
-	/**
-	 * Represents the restart button which the user can click to reset the game.
-	 */
+	private ImageIcon undoIcon;
 	private JButton restartButton;
-	
-	/**
-	 * Represents the font used to create the winning text.
-	 */
+	private JButton undoButton;
 	private Font font;
-	
-	/**
-	 * Initializes a new instance of COnnectFourView with default values.
-	 */
+
 	public ConnectFourView() throws IOException {
 		this.redDiscIcon = new ImageIcon(getClass().getResource("/RedDisc.png"));
 		this.blackDiscIcon = new ImageIcon(getClass().getResource("/BlackDisc.png"));
 		this.defaultIcon = new ImageIcon(getClass().getResource("/DefaultGameBoardPiece.png"));
 		this.winFlashTileIcon =  new ImageIcon(getClass().getResource("/WinFlashTile.png"));
 		this.restartIcon = new ImageIcon(getClass().getResource("/RestartButton.png"));
+		this.undoIcon = new ImageIcon(getClass().getResource("/UndoButton.png"));
 		
 		this.restartButton = new JButton(this.restartIcon);
+		this.undoButton = new JButton(this.undoIcon);
 	}
 
 	public void addRestartButtonListener(ActionListener l) {
@@ -116,5 +85,17 @@ public class ConnectFourView extends JFrame{
 		AgenteIA agenteIA = new AgenteIA(model);
 		ConnectFourView view = new ConnectFourView();
 		ConnectFourController controller = new ConnectFourController(view, model,agenteIA);
+	}
+
+	public void showNotYourTurn() {
+		JOptionPane.showMessageDialog(null,"Não é a sua vez!");
+	}
+
+	public JButton getUndoButton() {
+		return undoButton;
+	}
+
+	public void addUndoButtonListener(ActionListener l) {
+		this.undoButton.addActionListener(l);
 	}
 }

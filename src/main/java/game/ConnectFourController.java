@@ -42,7 +42,7 @@ public class ConnectFourController implements ActionListener {
 
 		perguntaPrimeiro();
 
-		int frameWidth = 2 * this.model.getMargin() + this.model.getCols() * this.model.getTileSize();
+		int frameWidth = 2 * this.model.getMargin() + this.model.getCols() * this.model.getTileSize() + this.model.getMargin();
 		int frameHeight = 3 * this.model.getMargin() + this.model.getRows() * this.model.getTileSize();
 		
 		//Setup Frame
@@ -55,16 +55,24 @@ public class ConnectFourController implements ActionListener {
 		
 		int buttonWidth = 2 * this.model.getMargin();
 		int buttonHeight = this.model.getMargin() / 2;
-		
+
 		//Setup Restart Button
 		JPanel restartPanel = new JPanel();
 		this.view.getRestartButton().setPreferredSize(new Dimension(buttonWidth, buttonHeight));
 		restartPanel.add(this.view.getRestartButton(), BorderLayout.CENTER);
 		this.view.add(restartPanel, BorderLayout.PAGE_END);
+
+		buttonWidth = this.model.getMargin();
+		buttonHeight =this.model.getMargin();
+
+		JPanel undoPanel = new JPanel();
+		this.view.getUndoButton().setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+		undoPanel.add(this.view.getUndoButton(), BorderLayout.EAST);
+		this.view.add(undoPanel,BorderLayout.EAST);
 		
 		//Setup Font
 		this.view.setFont(new Font("Monospaced", Font.BOLD, this.model.getFontSize()));
-		
+		this.view.addUndoButtonListener(new UndoButtonListener());
 		this.view.addRestartButtonListener(new RestartButtonListener());
 		this.view.addMouseListener(new PanelListener());
 		this.view.addMouseMotionListener(new CursorListener());
@@ -167,6 +175,17 @@ public class ConnectFourController implements ActionListener {
 			restart();
 		}
 	}
+
+	class UndoButtonListener implements ActionListener {
+
+		@Override
+		/**
+		 * Restarts the the game if the restart button is clicked.
+		 */
+		public void actionPerformed(ActionEvent e) {
+			undo();
+		}
+	}
 	
 	class PanelListener implements MouseListener {
 		
@@ -195,7 +214,7 @@ public class ConnectFourController implements ActionListener {
 		 */
 		public void mousePressed(MouseEvent e) {
 			if(!model.isPlayerTurn()){
-				JOptionPane.showMessageDialog(null,"Não é a sua vez!");
+				view.showNotYourTurn();
 				return;
 			}
 			//If a disc is currently falling...return.
@@ -218,7 +237,8 @@ public class ConnectFourController implements ActionListener {
 			if (model.getGameBoard()[0][model.getClickPoint().x] != model.EMPTY) return;
 			
 			setupDroppingDisc();
-			
+			model.addLastJogada(model.getClickPoint().x);
+
 			//Begin the timer.
 			model.getTimer().start();
 
@@ -461,6 +481,19 @@ public class ConnectFourController implements ActionListener {
 		perguntaPrimeiro();
 		if(!model.isPlayerTurn()){
 			startIAPlay();
+		}
+	}
+
+	public void undo(){
+		if(model.isPlayerTurn()) {
+			model.removeLastJogadas();
+			if(model.getWinSequence()) {
+				model.setWinSequence(false);
+				switchColor();
+			}
+			view.repaint();
+		}else {
+			view.showNotYourTurn();
 		}
 	}
 }
