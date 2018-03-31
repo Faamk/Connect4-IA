@@ -33,7 +33,7 @@ public class ConnectFourController implements ActionListener {
 	 * @param view
 	 * @param model
 	 */
-	public ConnectFourController(final ConnectFourView view, final ConnectFourModel model, AgenteIA agenteIA) {
+	public ConnectFourController(final ConnectFourView view, final ConnectFourModel model, AgenteIA agenteIA,boolean undo) {
 
 
 		this.view = view;
@@ -61,14 +61,15 @@ public class ConnectFourController implements ActionListener {
 		restartPanel.add(this.view.getRestartButton(), BorderLayout.CENTER);
 		this.view.add(restartPanel, BorderLayout.PAGE_END);
 
-		buttonWidth = this.model.getMargin();
-		buttonHeight =this.model.getMargin();
+		if(undo) {
+			buttonWidth = this.model.getMargin();
+			buttonHeight = this.model.getMargin();
 
-		JPanel undoPanel = new JPanel();
-		this.view.getUndoButton().setPreferredSize(new Dimension(buttonWidth, buttonHeight));
-		undoPanel.add(this.view.getUndoButton(), BorderLayout.EAST);
-		this.view.add(undoPanel,BorderLayout.EAST);
-		
+			JPanel undoPanel = new JPanel();
+			this.view.getUndoButton().setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+			undoPanel.add(this.view.getUndoButton(), BorderLayout.EAST);
+			this.view.add(undoPanel, BorderLayout.EAST);
+		}
 		//Setup Font
 		this.view.setFont(new Font("Monospaced", Font.BOLD, this.model.getFontSize()));
 		this.view.addUndoButtonListener(new UndoButtonListener());

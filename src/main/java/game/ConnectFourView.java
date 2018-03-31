@@ -21,7 +21,7 @@ public class ConnectFourView extends JFrame{
 	private JButton undoButton;
 	private Font font;
 
-	public ConnectFourView() throws IOException {
+	public ConnectFourView(String[] undo) throws IOException {
 		this.redDiscIcon = new ImageIcon(getClass().getResource("/RedDisc.png"));
 		this.blackDiscIcon = new ImageIcon(getClass().getResource("/BlackDisc.png"));
 		this.defaultIcon = new ImageIcon(getClass().getResource("/DefaultGameBoardPiece.png"));
@@ -31,6 +31,7 @@ public class ConnectFourView extends JFrame{
 		
 		this.restartButton = new JButton(this.restartIcon);
 		this.undoButton = new JButton(this.undoIcon);
+
 	}
 
 	public void addRestartButtonListener(ActionListener l) {
@@ -83,10 +84,13 @@ public class ConnectFourView extends JFrame{
 	public static void main (String args[]) throws IOException {
 		ConnectFourModel model = new ConnectFourModel();
 		AgenteIA agenteIA = new AgenteIA(model);
-		ConnectFourView view = new ConnectFourView();
-		ConnectFourController controller = new ConnectFourController(view, model,agenteIA);
+		ConnectFourView view = new ConnectFourView(args);
+		if (args.length != 0 && args[0].equalsIgnoreCase("undo")) {
+			ConnectFourController controller = new ConnectFourController(view, model, agenteIA,true);
+		}else{
+			ConnectFourController controller = new ConnectFourController(view, model, agenteIA,false);
+		}
 	}
-
 	public void showNotYourTurn() {
 		JOptionPane.showMessageDialog(null,"Não é a sua vez!");
 	}
