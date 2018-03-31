@@ -27,7 +27,7 @@ public class AgenteIA {
 
     public int fazerJogada() {
         CICLOS=0;
-        minMax(modelo, 8, PLAYER_AI, Integer.MIN_VALUE,Integer.MAX_VALUE);
+        minMax(modelo, 7, PLAYER_AI, Integer.MIN_VALUE,Integer.MAX_VALUE);
         System.out.println("Ciclos de minimax:" +CICLOS);
         int resu = Collections.max(colunasEResultados.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         colunasEResultados = new HashMap<>();
@@ -72,7 +72,7 @@ public class AgenteIA {
                 }
 
                 max = Math.max(currentScore, max);
-                if (depth == 8) {
+                if (depth == 7) {
                     System.out.println("Score da coluna" + i + " = " + currentScore);
                     colunasEResultados.put(i, currentScore);
                 }
@@ -94,7 +94,7 @@ public class AgenteIA {
                 }
 
                 min = Math.min(currentScore, min);
-                if (depth == 8) {
+                if (depth == 7) {
                     System.out.println("Score da coluna" + i + " = " + currentScore);
                     colunasEResultados.put(i, currentScore);
                 }
