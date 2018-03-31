@@ -10,11 +10,12 @@ public class AgenteIA {
 
     private int PLAYER_AI;
     private int PLAYER_HUMAN;
+    private int CICLOS = 0;
 
     Map<Integer, Integer> colunasEResultados = new HashMap<>();
 
     public AgenteIA(ConnectFourModel modelo) {
-        if(modelo.isPlayerTurn()) {
+        if(!modelo.isPlayerTurn()) {
             PLAYER_AI = 1;
             PLAYER_HUMAN = 2;
         }else{
@@ -25,7 +26,9 @@ public class AgenteIA {
     }
 
     public int fazerJogada() {
-        minMax(modelo, 5, PLAYER_AI);
+        CICLOS=0;
+        minMax(modelo, 8, PLAYER_AI, Integer.MIN_VALUE,Integer.MAX_VALUE);
+        System.out.println("Ciclos de minimax:" +CICLOS);
         int resu = Collections.max(colunasEResultados.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         colunasEResultados = new HashMap<>();
         modelo.addLastJogada(resu);
@@ -34,18 +37,19 @@ public class AgenteIA {
     }
 
 
-    private int minMax(ConnectFourModel modeloRecebido, int depth, int jogador) {
+    private int minMax(ConnectFourModel modeloRecebido, int depth, int jogador, int alfa, int beta) {
+        CICLOS++;
         if (modeloRecebido.checkWin() == -1) {
             return -500;
         }
-        if (modeloRecebido.checkWin() == 1) {
+        if (modeloRecebido.checkWin() == PLAYER_HUMAN) {
             return -1000;
         }
-        if (modeloRecebido.checkWin() == 2) {
+        if (modeloRecebido.checkWin() == PLAYER_AI) {
             return 1000;
         }
         if (depth == 0) {
-            return rateBoard(modeloRecebido.repeteTabuleiro());
+            return rateBoard(modeloRecebido.repeteTabuleiro())*10;
         }
         ArrayList<Integer> colunasPossiveis = modeloRecebido.getColunasJogaveis();
 
@@ -56,9 +60,19 @@ public class AgenteIA {
         if (jogador == PLAYER_AI) {
             for (Integer i : colunasPossiveis) {
                 ConnectFourModel modeloJogada = modeloRecebido.simulaJogada(i, PLAYER_AI);
-                currentScore = minMax(modeloJogada, depth - 1, PLAYER_HUMAN);
+                currentScore = minMax(modeloJogada, depth - 1, PLAYER_HUMAN, alfa,beta);
+                if(currentScore>max){
+                    max=currentScore;
+                }
+                if(max>=beta){
+                    return currentScore;
+                }
+                if(max>alfa){
+                    alfa = max;
+                }
+
                 max = Math.max(currentScore, max);
-                if (depth == 5) {
+                if (depth == 8) {
                     System.out.println("Score da coluna" + i + " = " + currentScore);
                     colunasEResultados.put(i, currentScore);
                 }
@@ -68,9 +82,19 @@ public class AgenteIA {
         } else {
             for (Integer i : colunasPossiveis) {
                 ConnectFourModel modeloJogada = modeloRecebido.simulaJogada(i, PLAYER_HUMAN);
-                currentScore = minMax(modeloJogada, depth - 1, PLAYER_AI);
+                currentScore = minMax(modeloJogada, depth - 1, PLAYER_AI,alfa,beta);
+                if(currentScore<min){
+                    min=currentScore;
+                }
+                if(min<=alfa){
+                    return currentScore;
+                }
+                if(min<beta){
+                    beta = min;
+                }
+
                 min = Math.min(currentScore, min);
-                if (depth == 5) {
+                if (depth == 8) {
                     System.out.println("Score da coluna" + i + " = " + currentScore);
                     colunasEResultados.put(i, currentScore);
                 }

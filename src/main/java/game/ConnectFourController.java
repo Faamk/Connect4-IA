@@ -40,7 +40,6 @@ public class ConnectFourController implements ActionListener {
 		this.model = model;
 		this.agenteIA = agenteIA;
 
-		perguntaPrimeiro();
 
 		int frameWidth = 2 * this.model.getMargin() + this.model.getCols() * this.model.getTileSize() + this.model.getMargin();
 		int frameHeight = 3 * this.model.getMargin() + this.model.getRows() * this.model.getTileSize();
@@ -88,11 +87,7 @@ public class ConnectFourController implements ActionListener {
 
 	}
 
-	private void perguntaPrimeiro() {
-		boolean firstToPlay = JOptionPane.showConfirmDialog(null,"Você gostaria de ser o primeiro a jogar?","Seleção de jogador inicial",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION;
-		model.setPlayerTurn(firstToPlay);
 
-	}
 
 	class Panel extends JPanel {
 
@@ -478,7 +473,7 @@ public class ConnectFourController implements ActionListener {
 		model.setCurrentColor(model.RED);
 		model.setWinSequence(false);
 		view.repaint();
-		perguntaPrimeiro();
+		model.perguntaPrimeiro();
 		if(!model.isPlayerTurn()){
 			startIAPlay();
 		}
@@ -493,7 +488,10 @@ public class ConnectFourController implements ActionListener {
 			}
 			view.repaint();
 		}else {
-			view.showNotYourTurn();
-		}
+			model.removeLastJogadas();
+			if(model.getWinSequence()) {
+				model.setWinSequence(false);
+			}
+			view.repaint();		}
 	}
 }

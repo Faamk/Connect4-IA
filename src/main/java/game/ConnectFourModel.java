@@ -3,7 +3,7 @@ package game;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import javax.swing.Timer;
+import javax.swing.*;
 
 public class ConnectFourModel {
 
@@ -123,8 +123,16 @@ public class ConnectFourModel {
         this.timer = new Timer(0, null);
         this.clickPoint = new Point(0, 0);
         this.mousePoint = new Point(0, 0);
+        perguntaPrimeiro();
+
     }
 
+
+    public void perguntaPrimeiro() {
+        boolean firstToPlay = JOptionPane.showConfirmDialog(null,"Você gostaria de ser o primeiro a jogar?","Seleção de jogador inicial",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION;
+        setPlayerTurn(firstToPlay);
+
+    }
     public ConnectFourModel(int[][] board) {
         this.gameBoard =board;
         this.connectFour = new Point[4];
